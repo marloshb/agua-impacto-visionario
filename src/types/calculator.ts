@@ -1,4 +1,3 @@
-
 // Project Area Definition
 export interface ProjectArea {
   id: string;
@@ -143,4 +142,84 @@ export interface ScenarioData {
   baseline: ImpactResults;
   optimistic: ImpactResults;
   conservative: ImpactResults;
+}
+
+export interface CalculationResults {
+  healthImpacts: {
+    preventedIllnesses: number;
+    reducedHospitalizations: number;
+    savedMedicalCosts: number;
+    improvedLifeExpectancy: number;
+    childMortalityReduction: number;
+    qualityAdjustedLifeYears: number;
+  };
+  economicImpacts: {
+    propertyValueIncrease: number;
+    newJobs: number;
+    productivityGains: number;
+    tourismIncrease: number;
+    businessGrowth: number;
+    taxRevenueIncrease: number;
+  };
+  socialImpacts: {
+    educationImprovement: number;
+    genderEquity: number;
+    communityWellbeing: number;
+    timeGainsByWomen: number;
+    reducedInequality: number;
+  };
+  environmentalImpacts: {
+    carbonFootprintReduction: number;
+    waterConservation: number;
+    biodiversityIndex: number;
+    pollutionReduction: number;
+    ecosystemServices: number;
+  };
+  roi: {
+    socialROI: number;
+    economicROI: number;
+    environmentalROI: number;
+    paybackPeriod: number;
+    npv: number;
+    irr: number;
+    benefitCostRatio: number;
+  };
+  risks: {
+    climateRisks: Array<{
+      type: string;
+      probability: number;
+      impact: number;
+      mitigation: string;
+    }>;
+    technicalRisks: Array<{
+      type: string;
+      probability: number;
+      impact: number;
+      mitigation: string;
+    }>;
+    financialRisks: Array<{
+      type: string;
+      probability: number;
+      impact: number;
+      mitigation: string;
+    }>;
+    socialRisks: Array<{
+      type: string;
+      probability: number;
+      impact: number;
+      mitigation: string;
+    }>;
+    overallRiskScore: number;
+  };
+  projectType?: 'water_loss' | 'reuse' | 'security' | 'sanitation';
+}
+
+export interface AIInsight {
+  type: 'recommendation' | 'optimization' | 'alert' | 'prediction';
+  confidence: number;
+  title: string;
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  actionable: boolean;
+  data?: Record<string, any>;
 }
