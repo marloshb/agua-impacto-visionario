@@ -3,6 +3,8 @@ import CalculatorEngine from "@/components/social-calculator/CalculatorEngine";
 import DataIntegration from "@/components/social-calculator/DataIntegration";
 import SpatialAnalysis from "@/components/social-calculator/SpatialAnalysis";
 import MonetaryValuation from "@/components/social-calculator/MonetaryValuation";
+import ProjectCatalog from "@/components/social-calculator/ProjectCatalog";
+import OutputReport from "@/components/social-calculator/OutputReport";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectData, CalculationResults, AIInsight } from "@/types/calculator";
 
@@ -79,13 +81,19 @@ const Index = () => {
             Análise completa de impactos em projetos de água e saneamento
           </p>
         </div>
-        <Tabs defaultValue="integration" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="catalog" className="w-full">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="catalog">Catálogo de Projetos</TabsTrigger>
             <TabsTrigger value="integration">Integração de Dados</TabsTrigger>
             <TabsTrigger value="analysis">Análises Espaciais</TabsTrigger>
             <TabsTrigger value="valuation">Valoração Monetária</TabsTrigger>
             <TabsTrigger value="calculator">Motor de Cálculo</TabsTrigger>
+            <TabsTrigger value="report">Relatório de Saída</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="catalog" className="mt-6">
+            <ProjectCatalog />
+          </TabsContent>
           
           <TabsContent value="integration" className="mt-6">
             <DataIntegration />
@@ -104,6 +112,13 @@ const Index = () => {
               projectData={projectData}
               onResults={handleResults}
               onInsights={handleInsights}
+            />
+          </TabsContent>
+          
+          <TabsContent value="report" className="mt-6">
+            <OutputReport 
+              projectName="Projeto de Saneamento - Ceilândia"
+              results={results}
             />
           </TabsContent>
         </Tabs>
