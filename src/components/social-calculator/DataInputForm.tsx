@@ -162,7 +162,15 @@ export default function DataInputForm({
 
   const handleFormSubmit = (data: ProjectDataForm) => {
     const projectData: ProjectData = {
-      area: initialData?.area!,
+      area: initialData?.area || {
+        id: 'temp',
+        name: 'Área Temporária',
+        coordinates: [],
+        area: 0,
+        population: data.totalPopulation,
+        municipality: 'Município',
+        state: 'Estado'
+      },
       infrastructure: {
         waterCoverage: data.waterCoverage,
         sewerCoverage: data.sewerCoverage,

@@ -1,91 +1,146 @@
-export interface ProjectData {
-  infrastructure: {
-    type?: string;
-    investmentAmount: number;
-    pipelineLength: number;
-    sewerCoverage: number;
-  };
-  demographics: {
-    totalPopulation: number;
-    households: number;
-    averageIncome: number;
-  };
-  health: {
-    waterQualityIndex: number;
-    waterborneIllnesses: number;
-    hospitalizations: number;
-  };
-  economic: {
-    tourism: number;
-  };
-  climate: {
-    floodRisk: number;
-  };
+
+// Project Area Definition
+export interface ProjectArea {
+  id: string;
+  name: string;
+  coordinates: [number, number][];
+  area: number;
+  population: number;
+  municipality: string;
+  state: string;
 }
 
-export interface CalculationResults {
-  healthImpacts: {
-    preventedIllnesses: number;
-    reducedHospitalizations: number;
-    savedMedicalCosts: number;
-    improvedLifeExpectancy: number;
-    childMortalityReduction: number;
-    qualityAdjustedLifeYears: number;
+// Infrastructure Data
+export interface InfrastructureData {
+  type?: string;
+  waterCoverage: number;
+  sewerCoverage: number;
+  treatmentPlants: number;
+  pipelineLength: number;
+  pumpStations: number;
+  investmentAmount: number;
+  projectType: 'water' | 'sewer' | 'treatment' | 'integrated';
+}
+
+// Demographics Data
+export interface DemographicsData {
+  totalPopulation: number;
+  households: number;
+  averageIncome: number;
+  educationLevel: 'low' | 'medium' | 'high';
+  vulnerabilityIndex: number;
+  childrenUnder5: number;
+  eldersOver65: number;
+}
+
+// Health Data
+export interface HealthData {
+  waterQualityIndex: number;
+  waterborneIllnesses: number;
+  hospitalizations: number;
+  infantMortality: number;
+  diarrheaCases: number;
+}
+
+// Economic Data
+export interface EconomicData {
+  tourism: number;
+  propertyValues: number;
+  localBusiness: number;
+  employment: number;
+  industrialActivity: number;
+}
+
+// Climate Data
+export interface ClimateData {
+  floodRisk: number;
+  droughtRisk: number;
+  temperatureChange: number;
+  precipitationChange: number;
+  extremeEvents: number;
+}
+
+// Complete Project Data
+export interface ProjectData {
+  area: ProjectArea;
+  infrastructure: InfrastructureData;
+  demographics: DemographicsData;
+  health: HealthData;
+  economic: EconomicData;
+  climate: ClimateData;
+}
+
+// Data Source Definition
+export interface DataSource {
+  id: string;
+  name: string;
+  type: 'IBGE' | 'SUS' | 'TrataBrasil' | 'IPCC' | 'ANA' | 'INPE';
+  reliability: number;
+  lastUpdate: Date;
+  status: 'active' | 'inactive' | 'maintenance';
+}
+
+// GIS Layer Definition
+export interface GISLayer {
+  id: string;
+  name: string;
+  type: 'infrastructure' | 'demographic' | 'health' | 'economic' | 'climate' | 'administrative';
+  visible: boolean;
+  opacity: number;
+  data?: any;
+}
+
+// Impact Analysis Results
+export interface ImpactResults {
+  health: {
+    diseaseReduction: number;
+    hospitalizationReduction: number;
+    mortalityReduction: number;
+    waterQualityImprovement: number;
   };
-  economicImpacts: {
+  economic: {
     propertyValueIncrease: number;
-    newJobs: number;
-    productivityGains: number;
-    tourismIncrease: number;
+    incomeIncrease: number;
     businessGrowth: number;
-    taxRevenueIncrease: number;
+    employmentIncrease: number;
+    tourismGrowth: number;
   };
-  socialImpacts: {
+  social: {
     educationImprovement: number;
-    genderEquity: number;
-    communityWellbeing: number;
-    timeGainsByWomen: number;
-    reducedInequality: number;
+    qualityOfLifeIndex: number;
+    socialInclusionIndex: number;
+    genderEqualityImpact: number;
   };
-  environmentalImpacts: {
-    carbonFootprintReduction: number;
-    waterConservation: number;
-    biodiversityIndex: number;
-    pollutionReduction: number;
-    ecosystemServices: number;
+  environmental: {
+    waterSavings: number;
+    energySavings: number;
+    carbonReduction: number;
+    ecosystemRecovery: number;
+    wasteReduction: number;
   };
   roi: {
     socialROI: number;
     economicROI: number;
     environmentalROI: number;
+    overallROI: number;
     paybackPeriod: number;
-    npv: number;
-    irr: number;
-    benefitCostRatio: number;
   };
-  risks: {
-    climateRisks: Risk[];
-    technicalRisks: Risk[];
-    financialRisks: Risk[];
-    socialRisks: Risk[];
-    overallRiskScore: number;
-  };
-  projectType?: 'water_loss' | 'reuse' | 'security' | 'sanitation';
 }
 
-export interface Risk {
-  type: string;
-  probability: number;
-  impact: number;
-  mitigation: string;
+// Calculation Parameters
+export interface CalculationParams {
+  timeHorizon: number;
+  discountRate: number;
+  inflationRate: number;
+  populationGrowthRate: number;
 }
 
-export interface AIInsight {
-  type: 'recommendation' | 'alert' | 'optimization' | 'prediction';
-  confidence: number;
-  title: string;
-  description: string;
-  impact: 'high' | 'medium' | 'low';
-  actionable: boolean;
-  data: any;
+// Project Types for Impact Calculation
+export type ProjectType = 'water_distribution' | 'sewage_treatment' | 'water_reuse' | 'water_security' | 'integrated';
+
+// Scenario Analysis
+export interface ScenarioData {
+  baseline: ImpactResults;
+  optimistic: ImpactResults;
+  conservative: ImpactResults;
 }
