@@ -14,6 +14,8 @@ import {
   Eye,
   BarChart3
 } from 'lucide-react';
+import ProjectDetails from './ProjectDetails';
+import ProjectAnalysis from './ProjectAnalysis';
 
 interface ProjectData {
   id: string;
@@ -98,6 +100,8 @@ const sampleProjects: ProjectData[] = [
 const ProjectCatalog = () => {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [currentView, setCurrentView] = useState<'catalog' | 'details' | 'analysis'>('catalog');
+  const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
 
   const filteredProjects = sampleProjects.filter(project => {
     return (selectedType === 'all' || project.type === selectedType) &&
@@ -144,6 +148,29 @@ const ProjectCatalog = () => {
     };
     return colors[status as keyof typeof colors] || '';
   };
+
+  const handleViewDetails = (project: ProjectData) => {
+    setSelectedProject(project);
+    setCurrentView('details');
+  };
+
+  const handleAnalyze = (project: ProjectData) => {
+    setSelectedProject(project);
+    setCurrentView('analysis');
+  };
+
+  const handleBackToCatalog = () => {
+    setCurrentView('catalog');
+    setSelectedProject(null);
+  };
+
+  if (currentView === 'details' && selectedProject) {
+    return <ProjectDetails project={selectedProject} onBack={handleBackToCatalog} />;
+  }
+
+  if (currentView === 'analysis' && selectedProject) {
+    return <ProjectAnalysis project={selectedProject} onBack={handleBackToCatalog} />;
+  }
 
   const totalInvestment = filteredProjects.reduce((sum, project) => sum + project.investmentAmount, 0);
   const totalBeneficiaries = filteredProjects.reduce((sum, project) => sum + project.beneficiaries, 0);
@@ -309,11 +336,20 @@ const ProjectCatalog = () => {
 
               {/* Action Buttons */}
               <div className="flex gap-2 pt-2">
-                <Button size="sm" variant="outline" className="flex-1">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleViewDetails(project)}
+                >
                   <Eye className="w-3 h-3 mr-1" />
                   Ver Detalhes
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handleAnalyze(project)}
+                >
                   <BarChart3 className="w-3 h-3 mr-1" />
                   Analisar
                 </Button>
