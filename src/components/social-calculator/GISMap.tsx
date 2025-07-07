@@ -1,6 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, Polygon, Popup, useMapEvents } from 'react-leaflet';
-import { LatLng } from 'leaflet';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +18,6 @@ import {
   Users
 } from 'lucide-react';
 import { ProjectArea, GISLayer } from '@/types/calculator';
-import 'leaflet/dist/leaflet.css';
 
 interface GISMapProps {
   selectedArea: ProjectArea | null;
@@ -30,36 +27,37 @@ interface GISMapProps {
   onLayerOpacityChange: (layerId: string, opacity: number) => void;
 }
 
-// Component for drawing polygons on the map
-function DrawingEvents({ onPolygonComplete }: { onPolygonComplete: (coordinates: [number, number][]) => void }) {
+// Temporary drawing component - will be replaced with actual map integration
+function DrawingInterface({ onPolygonComplete }: { onPolygonComplete: (coordinates: [number, number][]) => void }) {
   const [drawing, setDrawing] = useState(false);
   const [currentPath, setCurrentPath] = useState<[number, number][]>([]);
 
-  useMapEvents({
-    click(e) {
-      if (!drawing) return;
-      
-      const newPoint: [number, number] = [e.latlng.lat, e.latlng.lng];
-      const newPath = [...currentPath, newPoint];
-      setCurrentPath(newPath);
-    },
-    contextmenu(e) {
-      if (drawing && currentPath.length >= 3) {
-        onPolygonComplete(currentPath);
-        setCurrentPath([]);
-        setDrawing(false);
-      }
+  const handleMapClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!drawing) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    
+    // Convert to lat/lng (simplified)
+    const lat = -14.235 + (0.5 - y) * 20;
+    const lng = -51.925 + (x - 0.5) * 30;
+    
+    const newPoint: [number, number] = [lat, lng];
+    const newPath = [...currentPath, newPoint];
+    setCurrentPath(newPath);
+  };
+
+  const finishDrawing = () => {
+    if (currentPath.length >= 3) {
+      onPolygonComplete(currentPath);
+      setCurrentPath([]);
+      setDrawing(false);
     }
-  });
+  };
 
   return (
     <>
-      {drawing && currentPath.length > 0 && (
-        <Polygon 
-          positions={currentPath} 
-          pathOptions={{ color: 'hsl(var(--primary))', fillOpacity: 0.3 }}
-        />
-      )}
       {!drawing && (
         <div className="absolute top-4 left-4 z-[1000]">
           <Button 
@@ -75,21 +73,35 @@ function DrawingEvents({ onPolygonComplete }: { onPolygonComplete: (coordinates:
         <div className="absolute top-4 left-4 z-[1000] space-y-2">
           <div className="bg-card p-3 rounded-lg border">
             <p className="text-sm text-muted-foreground">
-              Clique para adicionar pontos. Clique direito para finalizar.
+              Clique no mapa para adicionar pontos ({currentPath.length} pontos)
             </p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => {
-                setDrawing(false);
-                setCurrentPath([]);
-              }}
-              className="mt-2"
-            >
-              Cancelar
-            </Button>
+            <div className="flex gap-2 mt-2">
+              <Button 
+                size="sm" 
+                onClick={finishDrawing}
+                disabled={currentPath.length < 3}
+              >
+                Finalizar Área
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  setDrawing(false);
+                  setCurrentPath([]);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
           </div>
         </div>
+      )}
+      {drawing && (
+        <div 
+          className="absolute inset-0 cursor-crosshair z-10"
+          onClick={handleMapClick}
+        />
       )}
     </>
   );
@@ -170,48 +182,44 @@ export default function GISMap({
 
   return (
     <div className="flex h-[600px] w-full gap-4">
-      {/* Map Container */}
-      <div className="flex-1 relative">
-        <MapContainer
-          ref={mapRef}
-          center={[-14.235, -51.925] as [number, number]}
-          zoom={4}
-          className="w-full h-full rounded-lg border"
-          zoomControl={false}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+      {/* Map Container - Temporary placeholder */}
+      <div className="flex-1 relative bg-slate-100 dark:bg-slate-800 rounded-lg border overflow-hidden">
+        {/* Temporary map background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900/20 dark:to-green-900/20">
+          <div className="absolute inset-0 opacity-20">
+            <svg width="100%" height="100%" viewBox="0 0 400 400">
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+          </div>
           
-          <DrawingEvents onPolygonComplete={handlePolygonComplete} />
+          {/* Brazil outline placeholder */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="w-48 h-40 bg-primary/10 rounded-lg border-2 border-primary/30 flex items-center justify-center">
+              <span className="text-primary/60 font-medium">Mapa do Brasil</span>
+            </div>
+          </div>
           
+          {/* Selected area visualization */}
           {selectedArea && (
-            <Polygon 
-              positions={selectedArea.coordinates}
-              pathOptions={{ 
-                color: 'hsl(var(--primary))', 
-                fillColor: 'hsl(var(--primary))',
-                fillOpacity: 0.4,
-                weight: 3
-              }}
-            >
-              <Popup>
-                <div className="p-2">
-                  <h4 className="font-semibold">{selectedArea.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Área: {selectedArea.area.toFixed(2)} km²
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    População: {selectedArea.population.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedArea.municipality}, {selectedArea.state}
+            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-24 h-20 bg-primary/30 rounded border-2 border-primary animate-pulse">
+                <div className="p-2 bg-card/90 rounded mt-2 mx-1">
+                  <p className="text-xs font-medium">{selectedArea.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedArea.area.toFixed(1)} km²
                   </p>
                 </div>
-              </Popup>
-            </Polygon>
+              </div>
+            </div>
           )}
-        </MapContainer>
+        </div>
+        
+        <DrawingInterface onPolygonComplete={handlePolygonComplete} />
 
         {/* Map Controls */}
         <div className="absolute top-4 right-4 z-[1000] space-y-2">
@@ -229,6 +237,13 @@ export default function GISMap({
           >
             <Zap className="w-4 h-4" />
           </Button>
+        </div>
+        
+        {/* Info overlay */}
+        <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm p-3 rounded-lg border">
+          <p className="text-xs text-muted-foreground">
+            🗺️ Visualização simplificada - GIS completo em desenvolvimento
+          </p>
         </div>
       </div>
 
