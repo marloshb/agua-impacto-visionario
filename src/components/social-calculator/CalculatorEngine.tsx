@@ -169,9 +169,9 @@ export default function CalculatorEngine({
     
     // Detectar tipo de projeto baseado nos dados de entrada
     const detectProjectType = () => {
-      if (infrastructure.type?.includes('reuso')) return 'reuse';
-      if (infrastructure.type?.includes('seguranca')) return 'security';
-      if (infrastructure.type?.includes('esgoto')) return 'sanitation';
+      if (infrastructure.type && infrastructure.type.includes('reuso')) return 'reuse';
+      if (infrastructure.type && infrastructure.type.includes('seguranca')) return 'security';
+      if (infrastructure.type && infrastructure.type.includes('esgoto')) return 'sanitation';
       return 'water_loss'; // default
     };
 

@@ -1,5 +1,9 @@
 import { useState } from "react";
 import CalculatorEngine from "@/components/social-calculator/CalculatorEngine";
+import DataIntegration from "@/components/social-calculator/DataIntegration";
+import SpatialAnalysis from "@/components/social-calculator/SpatialAnalysis";
+import MonetaryValuation from "@/components/social-calculator/MonetaryValuation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectData, CalculationResults, AIInsight } from "@/types/calculator";
 
 const Index = () => {
@@ -75,11 +79,34 @@ const Index = () => {
             Análise completa de impactos em projetos de água e saneamento
           </p>
         </div>
-        <CalculatorEngine 
-          projectData={projectData}
-          onResults={handleResults}
-          onInsights={handleInsights}
-        />
+        <Tabs defaultValue="integration" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="integration">Integração de Dados</TabsTrigger>
+            <TabsTrigger value="analysis">Análises Espaciais</TabsTrigger>
+            <TabsTrigger value="valuation">Valoração Monetária</TabsTrigger>
+            <TabsTrigger value="calculator">Motor de Cálculo</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="integration" className="mt-6">
+            <DataIntegration />
+          </TabsContent>
+          
+          <TabsContent value="analysis" className="mt-6">
+            <SpatialAnalysis />
+          </TabsContent>
+          
+          <TabsContent value="valuation" className="mt-6">
+            <MonetaryValuation />
+          </TabsContent>
+          
+          <TabsContent value="calculator" className="mt-6">
+            <CalculatorEngine 
+              projectData={projectData}
+              onResults={handleResults}
+              onInsights={handleInsights}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
