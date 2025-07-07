@@ -41,6 +41,7 @@ import {
   Target
 } from 'lucide-react';
 import { CalculationResults, AIInsight } from '@/types/calculator';
+import ImpactAnalysis from './ImpactAnalysis';
 
 interface ResultsDashboardProps {
   results: CalculationResults;
@@ -208,8 +209,9 @@ export default function ResultsDashboard({
 
       {/* Main Results Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="impacts">Análise Impactos</TabsTrigger>
           <TabsTrigger value="health">Saúde</TabsTrigger>
           <TabsTrigger value="economic">Economia</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
@@ -321,6 +323,13 @@ export default function ResultsDashboard({
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="impacts" className="space-y-6">
+          <ImpactAnalysis 
+            results={results} 
+            projectType={results.projectType || 'sanitation'} 
+          />
         </TabsContent>
 
         <TabsContent value="health" className="space-y-6">

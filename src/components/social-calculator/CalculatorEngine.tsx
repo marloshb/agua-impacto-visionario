@@ -167,49 +167,69 @@ export default function CalculatorEngine({
   const generateResults = (): CalculationResults => {
     const { infrastructure, demographics, health, economic, climate } = projectData;
     
-    // Simulate complex calculations based on real methodologies
+    // Detectar tipo de projeto baseado nos dados de entrada
+    const detectProjectType = () => {
+      if (infrastructure.type?.includes('reuso')) return 'reuse';
+      if (infrastructure.type?.includes('seguranca')) return 'security';
+      if (infrastructure.type?.includes('esgoto')) return 'sanitation';
+      return 'water_loss'; // default
+    };
+
+    const projectType = detectProjectType();
+    
+    // Cálculos expandidos baseados no tipo de projeto
     const populationBenefit = demographics.totalPopulation * (infrastructure.sewerCoverage / 100);
     const waterQualityImprovement = (100 - health.waterQualityIndex) * 0.8;
     
+    // Multipliers baseados no tipo de projeto
+    const multipliers = {
+      water_loss: { health: 0.6, economic: 0.8, social: 0.7, environmental: 0.9 },
+      reuse: { health: 0.4, economic: 1.2, social: 0.6, environmental: 1.1 },
+      security: { health: 0.8, economic: 0.9, social: 1.0, environmental: 0.8 },
+      sanitation: { health: 1.2, economic: 0.7, social: 1.1, environmental: 0.6 }
+    };
+
+    const mult = multipliers[projectType] || multipliers.water_loss;
+
     return {
       healthImpacts: {
-        preventedIllnesses: Math.round(health.waterborneIllnesses * 0.7 * (populationBenefit / 100000)),
-        reducedHospitalizations: Math.round(health.hospitalizations * 0.4),
-        savedMedicalCosts: health.hospitalizations * 0.4 * 3500, // R$ 3,500 per hospitalization
-        improvedLifeExpectancy: 2.3,
-        childMortalityReduction: 35,
-        qualityAdjustedLifeYears: populationBenefit * 0.1
+        preventedIllnesses: Math.round(health.waterborneIllnesses * 0.7 * (populationBenefit / 100000) * mult.health),
+        reducedHospitalizations: Math.round(health.hospitalizations * 0.4 * mult.health),
+        savedMedicalCosts: health.hospitalizations * 0.4 * 3500 * mult.health,
+        improvedLifeExpectancy: 2.3 * mult.health,
+        childMortalityReduction: 35 * mult.health,
+        qualityAdjustedLifeYears: populationBenefit * 0.1 * mult.health
       },
       economicImpacts: {
-        propertyValueIncrease: 12 + (infrastructure.sewerCoverage * 0.15),
-        newJobs: Math.round(infrastructure.investmentAmount / 100000), // 1 job per 100k investment
-        productivityGains: demographics.totalPopulation * demographics.averageIncome * 0.08,
-        tourismIncrease: economic.tourism > 0 ? 25 : 5,
-        businessGrowth: 18,
-        taxRevenueIncrease: infrastructure.investmentAmount * 0.05
+        propertyValueIncrease: (12 + (infrastructure.sewerCoverage * 0.15)) * mult.economic,
+        newJobs: Math.round((infrastructure.investmentAmount / 100000) * mult.economic),
+        productivityGains: demographics.totalPopulation * demographics.averageIncome * 0.08 * mult.economic,
+        tourismIncrease: (economic.tourism > 0 ? 25 : 5) * mult.economic,
+        businessGrowth: 18 * mult.economic,
+        taxRevenueIncrease: infrastructure.investmentAmount * 0.05 * mult.economic
       },
       socialImpacts: {
-        educationImprovement: 15,
-        genderEquity: 0.12,
-        communityWellbeing: 78,
-        timeGainsByWomen: 8.5,
-        reducedInequality: -0.08
+        educationImprovement: 15 * mult.social,
+        genderEquity: 0.12 * mult.social,
+        communityWellbeing: 78 * mult.social,
+        timeGainsByWomen: 8.5 * mult.social,
+        reducedInequality: -0.08 * mult.social
       },
       environmentalImpacts: {
-        carbonFootprintReduction: infrastructure.pipelineLength * 45,
-        waterConservation: demographics.households * 150,
-        biodiversityIndex: 65,
-        pollutionReduction: 40,
-        ecosystemServices: infrastructure.investmentAmount * 0.15
+        carbonFootprintReduction: infrastructure.pipelineLength * 45 * mult.environmental,
+        waterConservation: demographics.households * 150 * mult.environmental,
+        biodiversityIndex: 65 * mult.environmental,
+        pollutionReduction: 40 * mult.environmental,
+        ecosystemServices: infrastructure.investmentAmount * 0.15 * mult.environmental
       },
       roi: {
-        socialROI: 4.2,
-        economicROI: 5.5,
-        environmentalROI: 3.1,
-        paybackPeriod: 7.8,
+        socialROI: 4.2 * mult.social,
+        economicROI: 5.5 * mult.economic,
+        environmentalROI: 3.1 * mult.environmental,
+        paybackPeriod: 7.8 / ((mult.social + mult.economic + mult.environmental) / 3),
         npv: infrastructure.investmentAmount * 2.1,
         irr: 18.5,
-        benefitCostRatio: 5.1
+        benefitCostRatio: 5.1 * ((mult.social + mult.economic + mult.environmental) / 3)
       },
       risks: {
         climateRisks: [
@@ -245,7 +265,8 @@ export default function CalculatorEngine({
           }
         ],
         overallRiskScore: 23
-      }
+      },
+      projectType: projectType as any // Adicionar tipo de projeto aos resultados
     };
   };
 
