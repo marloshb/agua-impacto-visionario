@@ -368,7 +368,7 @@ export default function DetailedImpactMetrics({
               <h5 className="font-medium mb-2">Metas do Projeto</h5>
               <div className="space-y-1">
                 <div>Cobertura esgoto: 95% (meta)</div>
-                <div>Perda de água: <15% (atual ~25%)</div>
+                <div>Perda de água: &lt;15% (atual ~25%)</div>
                 <div>Qualidade: 100% tratamento</div>
                 <div>Eficiência energética: +20%</div>
               </div>
