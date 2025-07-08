@@ -223,3 +223,66 @@ export interface AIInsight {
   actionable: boolean;
   data?: Record<string, any>;
 }
+
+// GIS-specific types for enhanced functionality
+export interface GISProjectInput {
+  polygon: GeoJSONPolygon;
+  projectData: {
+    name: string;
+    interventionType: 'water_network' | 'sewer_network' | 'treatment_plant' | 'integrated';
+    lengthKm: number;
+    populationServed: number;
+    investmentAmount: number;
+    materials: string[];
+    constructionPeriod: number;
+  };
+  externalData: {
+    ibge?: IBGEData;
+    sus?: SUSData;
+    climate?: ClimateData;
+  };
+}
+
+export interface GeoJSONPolygon {
+  type: 'Feature';
+  geometry: {
+    type: 'Polygon';
+    coordinates: number[][][];
+  };
+  properties: {
+    project_id?: string;
+    area_km2?: number;
+    perimeter_km?: number;
+  };
+}
+
+export interface IBGEData {
+  populationDensity: number;
+  averageIncome: number;
+  urbanization: number;
+  accessToWater: number;
+  accessToSewer: number;
+}
+
+export interface SUSData {
+  waterborneIllnesses: number;
+  hospitalizations: number;
+  infantMortality: number;
+  healthFacilities: number;
+}
+
+export interface ExternalDataSource {
+  id: string;
+  name: string;
+  type: 'IBGE' | 'SUS' | 'ANA' | 'INMET';
+  endpoint: string;
+  status: 'active' | 'inactive';
+  lastSync: Date;
+}
+
+export interface GISValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  suggestions: string[];
+}
