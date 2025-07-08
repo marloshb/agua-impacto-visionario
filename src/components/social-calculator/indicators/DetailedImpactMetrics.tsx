@@ -1,308 +1,379 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { 
-  Users, 
+  Heart, 
   GraduationCap, 
   Leaf, 
-  TrendingDown,
-  Globe,
-  Briefcase,
-  AlertTriangle,
-  Target
+  Users, 
+  TrendingUp, 
+  Shield,
+  Target,
+  CheckCircle
 } from 'lucide-react';
 
 interface ImpactMetric {
   id: string;
+  category: string;
   name: string;
-  category: 'social' | 'education' | 'environment' | 'inequality' | 'vulnerability' | 'economic';
   value: number;
-  unit: string;
   baseline: number;
   target: number;
+  unit: string;
   description: string;
-  methodology: string;
-  sdgAlignment: string[];
-  trend: 'improving' | 'stable' | 'declining';
+  details: any;
 }
 
 interface DetailedImpactMetricsProps {
-  projectData: any;
-  onMetricsUpdate: (metrics: ImpactMetric[]) => void;
+  metrics: ImpactMetric[];
+  scenario: string;
+  campanasContext: any;
 }
 
 export default function DetailedImpactMetrics({ 
-  projectData, 
-  onMetricsUpdate 
+  metrics, 
+  scenario, 
+  campanasContext 
 }: DetailedImpactMetricsProps) {
-  const [metrics, setMetrics] = useState<ImpactMetric[]>([]);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('social');
-
-  useEffect(() => {
-    if (projectData) {
-      calculateDetailedMetrics();
-    }
-  }, [projectData]);
-
-  const calculateDetailedMetrics = async () => {
-    setIsCalculating(true);
-    
-    const calculatedMetrics: ImpactMetric[] = [
-      {
-        id: 'hdl_improvement',
-        name: 'Melhoria no IDH Local',
-        category: 'social',
-        value: calculateHDLImprovement(),
-        unit: 'pontos',
-        baseline: 0.65,
-        target: 0.68,
-        description: 'Impacto no Índice de Desenvolvimento Humano da área',
-        methodology: 'Correlação entre acesso ao saneamento e componentes do IDH',
-        sdgAlignment: ['ODS 3', 'ODS 6', 'ODS 11'],
-        trend: 'improving'
-      },
-      {
-        id: 'inequality_reduction',
-        name: 'Redução da Desigualdade Social',
-        category: 'inequality',
-        value: calculateInequalityReduction(),
-        unit: 'pontos Gini',
-        baseline: 0.52,
-        target: 0.48,
-        description: 'Diminuição do índice de Gini local',
-        methodology: 'Impacto na renda das famílias de baixa renda',
-        sdgAlignment: ['ODS 1', 'ODS 10'],
-        trend: 'improving'
-      },
-      {
-        id: 'education_impact',
-        name: 'Impacto na Educação',
-        category: 'education',
-        value: calculateEducationImpact(),
-        unit: '% redução absenteísmo',
-        baseline: 15,
-        target: 10,
-        description: 'Redução do absenteísmo escolar',
-        methodology: 'Correlação entre saúde e frequência escolar',
-        sdgAlignment: ['ODS 4'],
-        trend: 'improving'
-      },
-      {
-        id: 'carbon_mitigation',
-        name: 'Mitigação de Emissões de Carbono',
-        category: 'environment',
-        value: calculateCarbonMitigation(),
-        unit: 'tCO₂e/ano',
-        baseline: 0,
-        target: 150,
-        description: 'Redução de emissões de gases de efeito estufa',
-        methodology: 'Fatores de emissão IPCC para tratamento de esgoto',
-        sdgAlignment: ['ODS 13'],
-        trend: 'improving'
-      },
-      {
-        id: 'economic_connectivity',
-        name: 'Conectividade Econômica',
-        category: 'economic',
-        value: calculateEconomicConnectivity(),
-        unit: 'novos empregos',
-        baseline: 0,
-        target: 80,
-        description: 'Empregos diretos e indiretos gerados',
-        methodology: 'Modelo input-output regional',
-        sdgAlignment: ['ODS 8'],
-        trend: 'improving'
-      },
-      {
-        id: 'vulnerability_index',
-        name: 'Índice de Vulnerabilidade Socioambiental',
-        category: 'vulnerability',
-        value: calculateVulnerabilityReduction(),
-        unit: 'pontos',
-        baseline: 0.8,
-        target: 0.5,
-        description: 'Redução da vulnerabilidade a riscos climáticos',
-        methodology: 'Índice composto climático e socioeconômico',
-        sdgAlignment: ['ODS 11', 'ODS 13'],
-        trend: 'improving'
-      }
-    ];
-
-    setMetrics(calculatedMetrics);
-    onMetricsUpdate(calculatedMetrics);
-    setIsCalculating(false);
-  };
-
-  const calculateHDLImprovement = () => {
-    const healthImpact = (projectData.health?.waterborneIllnesses || 150) * 0.0001;
-    const incomeImpact = (projectData.demographics?.averageIncome || 2000) * 0.0001;
-    return Math.round((healthImpact + incomeImpact) * 1000) / 1000;
-  };
-
-  const calculateInequalityReduction = () => {
-    const populationImpact = projectData.demographics?.totalPopulation || 5000;
-    const reductionFactor = Math.min(populationImpact / 10000, 0.1);
-    return Math.round(reductionFactor * 1000) / 1000;
-  };
-
-  const calculateEducationImpact = () => {
-    const diseaseReduction = 0.3; // 30% redução em doenças
-    const absenteeismReduction = diseaseReduction * 0.4; // 40% correlação
-    return Math.round(absenteeismReduction * 100);
-  };
-
-  const calculateCarbonMitigation = () => {
-    const sewageVolume = (projectData.infrastructure?.pipelineLength || 10) * 100; // m³/dia
-    const emissionFactor = 0.365; // tCO₂e/m³/ano
-    return Math.round(sewageVolume * emissionFactor);
-  };
-
-  const calculateEconomicConnectivity = () => {
-    const investment = projectData.infrastructure?.investmentAmount || 1000000;
-    const jobsPerMillion = 8; // empregos por milhão investido
-    return Math.round((investment / 1000000) * jobsPerMillion);
-  };
-
-  const calculateVulnerabilityReduction = () => {
-    const floodRisk = projectData.climate?.floodRisk || 30;
-    const reductionFactor = 0.4; // 40% redução
-    return Math.round((floodRisk * reductionFactor * 0.01) * 100) / 100;
-  };
-
-  const getMetricIcon = (category: string) => {
-    switch (category) {
-      case 'social': return <Users className="w-5 h-5 text-blue-500" />;
-      case 'education': return <GraduationCap className="w-5 h-5 text-purple-500" />;
-      case 'environment': return <Leaf className="w-5 h-5 text-green-500" />;
-      case 'inequality': return <TrendingDown className="w-5 h-5 text-orange-500" />;
-      case 'vulnerability': return <AlertTriangle className="w-5 h-5 text-red-500" />;
-      case 'economic': return <Briefcase className="w-5 h-5 text-yellow-500" />;
-      default: return <Target className="w-5 h-5 text-gray-500" />;
+  
+  const getIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'saúde': return Heart;
+      case 'educação': return GraduationCap;
+      case 'ambiental': return Leaf;
+      case 'social': return Users;
+      case 'econômico': return TrendingUp;
+      case 'vulnerabilidade': return Shield;
+      default: return Target;
     }
   };
 
-  const getProgressPercentage = (baseline: number, current: number, target: number) => {
-    if (target === baseline) return 100;
-    return Math.min(Math.max(((current - baseline) / (target - baseline)) * 100, 0), 100);
+  const getCategoryColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'saúde': return 'bg-red-500';
+      case 'educação': return 'bg-blue-500';
+      case 'ambiental': return 'bg-green-500';
+      case 'social': return 'bg-purple-500';
+      case 'econômico': return 'bg-yellow-500';
+      case 'vulnerabilidade': return 'bg-orange-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getProgressValue = (metric: ImpactMetric) => {
+    if (metric.unit === 'índice_gini' || metric.unit === 'índice') {
+      // Para índices onde menor é melhor
+      const progress = Math.max(0, (metric.baseline - metric.value) / (metric.baseline - metric.target));
+      return Math.min(100, progress * 100);
+    } else {
+      // Para percentuais onde maior é melhor
+      const progress = (metric.value - metric.baseline) / (metric.target - metric.baseline);
+      return Math.min(100, Math.max(0, progress * 100));
+    }
   };
 
   const formatValue = (value: number, unit: string) => {
-    if (unit.includes('%')) return `${value}%`;
-    if (unit.includes('pontos')) return value.toFixed(3);
-    if (unit.includes('tCO₂e')) return `${value} tCO₂e`;
-    return value.toLocaleString('pt-BR');
+    switch (unit) {
+      case 'percentual':
+        return `${(value * 100).toFixed(1)}%`;
+      case 'índice_gini':
+        return value.toFixed(3);
+      case 'índice':
+        return value.toFixed(2);
+      default:
+        return value.toFixed(2);
+    }
   };
-
-  const getCategoryMetrics = (category: string) => {
-    return metrics.filter(metric => metric.category === category);
-  };
-
-  const categories = [
-    { id: 'social', name: 'Social', icon: Users },
-    { id: 'education', name: 'Educação', icon: GraduationCap },
-    { id: 'environment', name: 'Ambiental', icon: Leaf },
-    { id: 'inequality', name: 'Desigualdade', icon: TrendingDown },
-    { id: 'vulnerability', name: 'Vulnerabilidade', icon: AlertTriangle },
-    { id: 'economic', name: 'Econômico', icon: Briefcase }
-  ];
 
   return (
     <div className="space-y-6">
+      {/* Overview dos Impactos */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />
-            Métricas Detalhadas de Impacto
+            Métricas de Impacto - Jardim Campos Elíseos, Campinas
           </CardTitle>
-          <div className="text-sm text-muted-foreground">
-            Indicadores quantificáveis de impacto social, ambiental e econômico
-          </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="grid w-full grid-cols-6">
-              {categories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id} className="text-xs">
-                  <category.icon className="w-4 h-4 mr-1" />
-                  {category.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-blue-700">
+                {campanasContext.demographics.totalPopulation.toLocaleString()}
+              </div>
+              <div className="text-sm text-muted-foreground">População Beneficiada</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-green-700">
+                {campanasContext.demographics.households.toLocaleString()}
+              </div>
+              <div className="text-sm text-muted-foreground">Famílias Atendidas</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-purple-700">
+                {campanasContext.sanasa.coverage.sewer}%
+              </div>
+              <div className="text-sm text-muted-foreground">Cobertura Esgoto Atual</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-            {categories.map((category) => (
-              <TabsContent key={category.id} value={category.id} className="mt-6">
-                <div className="space-y-4">
-                  {getCategoryMetrics(category.id).map((metric) => (
-                    <Card key={metric.id} className="border-l-4 border-l-primary">
-                      <CardContent className="pt-4">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            {getMetricIcon(metric.category)}
-                            <div>
-                              <h4 className="font-medium">{metric.name}</h4>
-                              <p className="text-sm text-muted-foreground">
-                                {metric.description}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-lg font-bold">
-                              {formatValue(metric.value, metric.unit)}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {metric.unit}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-xs">
-                            <span>Progresso (Baseline → Meta)</span>
-                            <span>
-                              {getProgressPercentage(metric.baseline, metric.value, metric.target).toFixed(1)}%
-                            </span>
-                          </div>
-                          <Progress 
-                            value={getProgressPercentage(metric.baseline, metric.value, metric.target)} 
-                            className="h-2" 
-                          />
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Base: {formatValue(metric.baseline, metric.unit)}</span>
-                            <span>Meta: {formatValue(metric.target, metric.unit)}</span>
-                          </div>
-                        </div>
-
-                        <div className="mt-3 p-2 bg-muted/50 rounded text-xs">
-                          <div className="font-medium mb-1">Metodologia:</div>
-                          <div>{metric.methodology}</div>
-                        </div>
-
-                        <div className="flex justify-between items-center mt-3">
-                          <div className="flex gap-1">
-                            {metric.sdgAlignment.map((sdg) => (
-                              <Badge key={sdg} variant="outline" className="text-xs">
-                                {sdg}
-                              </Badge>
-                            ))}
-                          </div>
-                          <Badge 
-                            variant={metric.trend === 'improving' ? 'default' : 'secondary'}
-                            className="text-xs"
-                          >
-                            {metric.trend === 'improving' ? 'Melhorando' : 'Estável'}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+      {/* Métricas por Categoria */}
+      <div className="grid gap-6">
+        {metrics.map((metric) => {
+          const IconComponent = getIcon(metric.category);
+          const progressValue = getProgressValue(metric);
+          
+          return (
+            <Card key={metric.id}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <IconComponent className="w-5 h-5" />
+                    {metric.name}
+                  </div>
+                  <Badge 
+                    variant="outline" 
+                    className={`text-white ${getCategoryColor(metric.category)}`}
+                  >
+                    {metric.category}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {formatValue(metric.value, metric.unit)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Valor atual
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Progress value={progressValue} className="w-32" />
+                      <span className="text-sm font-medium">{progressValue.toFixed(0)}%</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Meta: {formatValue(metric.target, metric.unit)}
+                    </div>
+                  </div>
                 </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+
+                <div className="text-sm text-muted-foreground">
+                  {metric.description}
+                </div>
+
+                {/* Detalhes específicos por categoria */}
+                {metric.id === 'health_impact' && (
+                  <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Impacto na Saúde - Dados HC Unicamp/Hospital Mário Gatti</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <div className="font-medium">Diarreia</div>
+                        <div>Atual: {metric.details.diarrhea.current} casos/ano</div>
+                        <div>Projetado: {metric.details.diarrhea.projected} casos/ano</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Hepatite A</div>
+                        <div>Atual: {metric.details.hepatitis.current} casos/ano</div>
+                        <div>Projetado: {metric.details.hepatitis.projected} casos/ano</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Verminoses</div>
+                        <div>Atual: {metric.details.parasites.current} casos/ano</div>
+                        <div>Projetado: {metric.details.parasites.projected} casos/ano</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {metric.id === 'education_impact' && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Impacto na Educação - Escolas da Região</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <div className="font-medium">Escolas Beneficiadas</div>
+                        <div>{metric.details.schools} unidades</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Estudantes</div>
+                        <div>{metric.details.students.toLocaleString()} alunos</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Redução Faltas</div>
+                        <div>{metric.details.absenceReduction}%</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {metric.id === 'environmental_impact' && (
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Impacto Ambiental - Região Metropolitana de Campinas</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <div className="font-medium">CO₂ Reduzido</div>
+                        <div>{metric.details.co2Reduction} t/ano</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Metano Reduzido</div>
+                        <div>{metric.details.methaneReduction} t/ano</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Água Economizada</div>
+                        <div>{metric.details.waterSaved}M m³/ano</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {metric.id === 'social_impact' && (
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Impacto Social - Jardim Campos Elíseos</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <div className="font-medium">Famílias Beneficiadas</div>
+                        <div>{metric.details.beneficiaries.toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Aumento de Renda</div>
+                        <div>{metric.details.incomeIncrease}% médio</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Empregos Criados</div>
+                        <div>{metric.details.jobsCreated} postos</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {metric.id === 'economic_impact' && (
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Impacto Econômico - Economia Local</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <div className="font-medium">Novos Negócios</div>
+                        <div>{metric.details.newBusinesses} empresas</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Aumento PIB</div>
+                        <div>{metric.details.gdpIncrease}% local</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Turismo</div>
+                        <div>+{metric.details.tourismGrowth}% visitantes</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {metric.id === 'vulnerability_reduction' && (
+                  <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Redução de Vulnerabilidade - Riscos Climáticos</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <div className="font-medium">Risco Enchentes</div>
+                        <div>-{metric.details.floodRisk}%</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Risco Secas</div>
+                        <div>-{metric.details.droughtRisk}%</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">Vulnerabilidade Social</div>
+                        <div>-{metric.details.socialVulnerability}%</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Alinhamento com ODS */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5" />
+            Alinhamento com Objetivos de Desenvolvimento Sustentável (ODS)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="p-3 border rounded-lg">
+              <div className="font-medium text-blue-600">ODS 3 - Saúde e Bem-estar</div>
+              <div className="text-sm text-muted-foreground mt-1">
+                Redução de 65% das doenças hídricas na região
+              </div>
+            </div>
+            <div className="p-3 border rounded-lg">
+              <div className="font-medium text-blue-600">ODS 4 - Educação de Qualidade</div>
+              <div className="text-sm text-muted-foreground mt-1">
+                Redução de 28% no absenteísmo escolar
+              </div>
+            </div>
+            <div className="p-3 border rounded-lg">
+              <div className="font-medium text-blue-600">ODS 6 - Água Potável e Saneamento</div>
+              <div className="text-sm text-muted-foreground mt-1">
+                Expansão da cobertura de esgoto para 95%
+              </div>
+            </div>
+            <div className="p-3 border rounded-lg">
+              <div className="font-medium text-blue-600">ODS 8 - Trabalho Decente</div>
+              <div className="text-sm text-muted-foreground mt-1">
+                Criação de 280 empregos diretos e indiretos
+              </div>
+            </div>
+            <div className="p-3 border rounded-lg">
+              <div className="font-medium text-blue-600">ODS 10 - Redução das Desigualdades</div>
+              <div className="text-sm text-muted-foreground mt-1">
+                Melhoria do índice de Gini de 0,62 para 0,48
+              </div>
+            </div>
+            <div className="p-3 border rounded-lg">
+              <div className="font-medium text-blue-600">ODS 13 - Ação Contra Mudança Climática</div>
+              <div className="text-sm text-muted-foreground mt-1">
+                Redução de 850 tCO₂e/ano em emissões
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Contexto SANASA */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Contexto Operacional - SANASA Campinas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h5 className="font-medium mb-2">Cobertura Atual</h5>
+              <div className="space-y-1">
+                <div>Água: {campanasContext.sanasa.coverage.water}%</div>
+                <div>Esgoto: {campanasContext.sanasa.coverage.sewer}%</div>
+                <div>Tarifa residencial: R$ {campanasContext.sanasa.tariff.residential}/m³</div>
+                <div>Tarifa comercial: R$ {campanasContext.sanasa.tariff.commercial}/m³</div>
+              </div>
+            </div>
+            <div>
+              <h5 className="font-medium mb-2">Metas do Projeto</h5>
+              <div className="space-y-1">
+                <div>Cobertura esgoto: 95% (meta)</div>
+                <div>Perda de água: <15% (atual ~25%)</div>
+                <div>Qualidade: 100% tratamento</div>
+                <div>Eficiência energética: +20%</div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

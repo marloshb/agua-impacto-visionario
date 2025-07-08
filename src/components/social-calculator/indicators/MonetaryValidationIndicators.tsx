@@ -1,290 +1,248 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
+  TrendingUp, 
+  TrendingDown, 
   DollarSign, 
   Heart, 
   Building, 
-  CloudRain, 
-  Calculator,
-  TrendingUp,
-  Activity
+  Leaf, 
+  Shield,
+  Calculator
 } from 'lucide-react';
 
 interface MonetaryIndicator {
   id: string;
   name: string;
-  category: 'health' | 'climate' | 'tax' | 'operational' | 'npv';
   value: number;
   unit: string;
-  description: string;
-  calculation: {
-    baseValue: number;
-    multiplier: number;
-    formula: string;
-  };
+  timeframe: string;
   confidence: number;
-  timeHorizon: number;
+  trend: number;
+  description: string;
+  calculation: any;
 }
 
 interface MonetaryValidationIndicatorsProps {
-  projectData: any;
-  onIndicatorsUpdate: (indicators: MonetaryIndicator[]) => void;
+  indicators: MonetaryIndicator[];
+  scenario: string;
+  projectLocation: string;
 }
 
 export default function MonetaryValidationIndicators({ 
-  projectData, 
-  onIndicatorsUpdate 
+  indicators, 
+  scenario, 
+  projectLocation 
 }: MonetaryValidationIndicatorsProps) {
-  const [indicators, setIndicators] = useState<MonetaryIndicator[]>([]);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [totalSavings, setTotalSavings] = useState(0);
-
-  useEffect(() => {
-    if (projectData) {
-      calculateMonetaryIndicators();
-    }
-  }, [projectData]);
-
-  const calculateMonetaryIndicators = async () => {
-    setIsCalculating(true);
-    
-    // Simular cálculos baseados nos dados do projeto
-    const calculatedIndicators: MonetaryIndicator[] = [
-      {
-        id: 'health_cost_savings',
-        name: 'Economia em Custos de Saúde Pública',
-        category: 'health',
-        value: calculateHealthSavings(),
-        unit: 'R$/ano',
-        description: 'Redução de gastos com tratamento de doenças hídricas',
-        calculation: {
-          baseValue: projectData.health?.waterborneIllnesses || 150,
-          multiplier: 2000, // R$ por internação evitada
-          formula: 'Casos evitados × Custo médio por caso'
-        },
-        confidence: 85,
-        timeHorizon: 10
-      },
-      {
-        id: 'climate_cost_reduction',
-        name: 'Redução de Custos com Eventos Climáticos',
-        category: 'climate',
-        value: calculateClimateSavings(),
-        unit: 'R$/ano',
-        description: 'Economia com mitigação de danos climáticos',
-        calculation: {
-          baseValue: projectData.climate?.floodRisk || 30,
-          multiplier: 25000, // R$ por % de risco reduzido
-          formula: 'Risco reduzido (%) × Custo histórico de danos'
-        },
-        confidence: 70,
-        timeHorizon: 20
-      },
-      {
-        id: 'tax_revenue_increase',
-        name: 'Aumento da Receita Tributária',
-        category: 'tax',
-        value: calculateTaxIncrease(),
-        unit: 'R$/ano',
-        description: 'Incremento na arrecadação fiscal local',
-        calculation: {
-          baseValue: projectData.economic?.propertyValues || 12,
-          multiplier: 15000, // R$ por % de valorização
-          formula: 'Valorização (%) × Base tributária × Alíquota'
-        },
-        confidence: 80,
-        timeHorizon: 15
-      },
-      {
-        id: 'operational_cost_reduction',
-        name: 'Redução de Custos Operacionais',
-        category: 'operational',
-        value: calculateOperationalSavings(),
-        unit: 'R$/ano',
-        description: 'Economia em operação e manutenção',
-        calculation: {
-          baseValue: projectData.infrastructure?.pipelineLength || 10,
-          multiplier: 5000, // R$ por km de rede otimizada
-          formula: 'Extensão da rede × Economia por km'
-        },
-        confidence: 90,
-        timeHorizon: 25
-      },
-      {
-        id: 'social_npv',
-        name: 'Valor Presente Líquido Social',
-        category: 'npv',
-        value: calculateSocialNPV(),
-        unit: 'R$',
-        description: 'VPL dos benefícios sociais totais',
-        calculation: {
-          baseValue: projectData.infrastructure?.investmentAmount || 1000000,
-          multiplier: 4.2, // Multiplicador de ROI social
-          formula: 'Σ(Benefícios futuros / (1+taxa)^t)'
-        },
-        confidence: 75,
-        timeHorizon: 30
-      }
-    ];
-
-    setIndicators(calculatedIndicators);
-    onIndicatorsUpdate(calculatedIndicators);
-    
-    const total = calculatedIndicators.reduce((sum, indicator) => 
-      sum + (indicator.category !== 'npv' ? indicator.value : 0), 0
-    );
-    setTotalSavings(total);
-    
-    setIsCalculating(false);
-  };
-
-  const calculateHealthSavings = () => {
-    const illnesses = projectData.health?.waterborneIllnesses || 150;
-    const reductionRate = 0.6; // 60% de redução
-    const costPerCase = 2000; // R$ por caso
-    return Math.round(illnesses * reductionRate * costPerCase);
-  };
-
-  const calculateClimateSavings = () => {
-    const floodRisk = projectData.climate?.floodRisk || 30;
-    const riskReduction = 0.4; // 40% de redução no risco
-    const costPerRiskPoint = 25000; // R$ por ponto percentual de risco
-    return Math.round(floodRisk * riskReduction * costPerRiskPoint);
-  };
-
-  const calculateTaxIncrease = () => {
-    const propertyValue = projectData.economic?.propertyValues || 12;
-    const taxRate = 0.015; // 1.5% de IPTU
-    const properties = projectData.demographics?.households || 1000;
-    return Math.round(propertyValue * taxRate * properties * 1000);
-  };
-
-  const calculateOperationalSavings = () => {
-    const pipelineLength = projectData.infrastructure?.pipelineLength || 10;
-    const savingsPerKm = 5000; // R$ por km/ano
-    return Math.round(pipelineLength * savingsPerKm);
-  };
-
-  const calculateSocialNPV = () => {
-    const investment = projectData.infrastructure?.investmentAmount || 1000000;
-    const annualBenefits = totalSavings;
-    const discountRate = 0.06; // 6% a.a.
-    const years = 20;
-    
-    let npv = -investment;
-    for (let year = 1; year <= years; year++) {
-      npv += annualBenefits / Math.pow(1 + discountRate, year);
-    }
-    return Math.round(npv);
-  };
-
-  const getIndicatorIcon = (category: string) => {
-    switch (category) {
-      case 'health': return <Heart className="w-5 h-5 text-red-500" />;
-      case 'climate': return <CloudRain className="w-5 h-5 text-blue-500" />;
-      case 'tax': return <Building className="w-5 h-5 text-green-500" />;
-      case 'operational': return <Activity className="w-5 h-5 text-purple-500" />;
-      case 'npv': return <TrendingUp className="w-5 h-5 text-orange-500" />;
-      default: return <DollarSign className="w-5 h-5 text-gray-500" />;
+  
+  const getIcon = (id: string) => {
+    switch (id) {
+      case 'health_savings': return Heart;
+      case 'property_valuation': return Building;
+      case 'tax_revenue': return DollarSign;
+      case 'operational_savings': return Calculator;
+      case 'climate_mitigation': return Shield;
+      default: return Leaf;
     }
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
+    if (value >= 1000000) {
+      return `R$ ${(value / 1000000).toFixed(1)}M`;
+    } else if (value >= 1000) {
+      return `R$ ${(value / 1000).toFixed(0)}K`;
+    }
+    return `R$ ${value.toFixed(0)}`;
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-600';
-    if (confidence >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+    if (confidence >= 80) return 'bg-green-500';
+    if (confidence >= 60) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const getTrendColor = (trend: number) => {
+    if (trend > 10) return 'text-green-600';
+    if (trend > 0) return 'text-blue-600';
+    return 'text-gray-600';
   };
 
   return (
     <div className="space-y-6">
+      {/* Resumo Geral */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calculator className="w-5 h-5" />
-            Indicadores de Validação Monetária
+            <DollarSign className="w-5 h-5" />
+            Resumo da Validação Monetária - {projectLocation}
           </CardTitle>
-          <div className="text-sm text-muted-foreground">
-            Conversão de impactos sociais e ambientais em valores financeiros
-          </div>
         </CardHeader>
         <CardContent>
-          {totalSavings > 0 && (
-            <div className="mb-6 p-4 bg-primary/10 rounded-lg">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {formatCurrency(totalSavings)}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Total de economias anuais projetadas
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-medium mb-2">Benefícios Totais (10 anos)</h4>
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(indicators.reduce((sum, ind) => 
+                  sum + (ind.timeframe === 'anual' ? ind.value * 10 : ind.value), 0))}
               </div>
             </div>
-          )}
+            <div>
+              <h4 className="font-medium mb-2">Cenário Atual</h4>
+              <Badge variant="outline" className="text-sm">
+                {scenario === 'conservative' ? 'Conservador' : 
+                 scenario === 'realistic' ? 'Realista' : 'Otimista'}
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-          <div className="grid gap-4">
-            {indicators.map((indicator) => (
-              <Card key={indicator.id} className="border-l-4 border-l-primary">
-                <CardContent className="pt-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      {getIndicatorIcon(indicator.category)}
-                      <div>
-                        <h4 className="font-medium">{indicator.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {indicator.description}
-                        </p>
-                      </div>
+      {/* Indicadores Individuais */}
+      <div className="grid gap-6">
+        {indicators.map((indicator) => {
+          const IconComponent = getIcon(indicator.id);
+          
+          return (
+            <Card key={indicator.id}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <IconComponent className="w-5 h-5" />
+                    {indicator.name}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {indicator.trend > 0 ? (
+                      <TrendingUp className={`w-4 h-4 ${getTrendColor(indicator.trend)}`} />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 text-red-600" />
+                    )}
+                    <span className={`text-sm font-medium ${getTrendColor(indicator.trend)}`}>
+                      +{indicator.trend}%
+                    </span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {formatCurrency(indicator.value)}
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold">
-                        {formatCurrency(indicator.value)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {indicator.unit}
-                      </div>
+                    <div className="text-sm text-muted-foreground">
+                      {indicator.timeframe === 'anual' ? 'por ano' : 'valor total'}
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs">
-                      <span>Confiança</span>
-                      <span className={getConfidenceColor(indicator.confidence)}>
-                        {indicator.confidence}%
-                      </span>
-                    </div>
-                    <Progress value={indicator.confidence} className="h-1" />
-                  </div>
-
-                  <div className="mt-3 p-2 bg-muted/50 rounded text-xs">
-                    <div className="font-medium mb-1">Cálculo:</div>
-                    <div>{indicator.calculation.formula}</div>
-                    <div className="text-muted-foreground">
-                      Base: {indicator.calculation.baseValue.toLocaleString('pt-BR')} × 
-                      Fator: {indicator.calculation.multiplier.toLocaleString('pt-BR')}
+                  <div className="text-right">
+                    <div className="text-sm font-medium">Confiança</div>
+                    <div className="flex items-center gap-2">
+                      <Progress 
+                        value={indicator.confidence} 
+                        className="w-20 h-2" 
+                      />
+                      <span className="text-sm font-medium">{indicator.confidence}%</span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
-                    <span>Horizonte: {indicator.timeHorizon} anos</span>
-                    <Badge variant="outline" className="text-xs">
-                      {indicator.category.toUpperCase()}
-                    </Badge>
+                <div className="text-sm text-muted-foreground">
+                  {indicator.description}
+                </div>
+
+                {/* Detalhes específicos do cálculo */}
+                {indicator.id === 'health_savings' && (
+                  <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Detalhes - Economia em Saúde</h5>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Internações atuais: {indicator.calculation.baseline}/ano</div>
+                      <div>Internações projetadas: {indicator.calculation.projected}/ano</div>
+                      <div>Custo médio SUS: R$ {indicator.calculation.avgCost.toLocaleString()}</div>
+                      <div>Economia anual: {formatCurrency(indicator.calculation.reduction)}</div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                )}
+
+                {indicator.id === 'property_valuation' && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Detalhes - Valorização Imobiliária</h5>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Imóveis impactados: {indicator.calculation.properties.toLocaleString()}</div>
+                      <div>Valorização média: R$ {indicator.calculation.avgIncrease.toLocaleString()}</div>
+                      <div>Impacto total: {formatCurrency(indicator.calculation.totalValue)}</div>
+                      <div>Região: Jardim Campos Elíseos</div>
+                    </div>
+                  </div>
+                )}
+
+                {indicator.id === 'operational_savings' && (
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Detalhes - Economia SANASA</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>Redução perdas: {indicator.calculation.waterLossReduction}%</div>
+                      <div>Economia manutenção: {indicator.calculation.maintenanceSavings}%</div>
+                      <div>Economia energia: {indicator.calculation.energySavings}%</div>
+                    </div>
+                  </div>
+                )}
+
+                {indicator.id === 'tax_revenue' && (
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Detalhes - Receita Tributária</h5>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Aumento IPTU: {formatCurrency(indicator.calculation.iptuIncrease)}</div>
+                      <div>Aumento ISS: {formatCurrency(indicator.calculation.issIncrease)}</div>
+                      <div>Total anual: {formatCurrency(indicator.value)}</div>
+                      <div>Município: Campinas</div>
+                    </div>
+                  </div>
+                )}
+
+                {indicator.id === 'climate_mitigation' && (
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                    <h5 className="font-medium mb-2">Detalhes - Mitigação Climática</h5>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Prevenção enchentes: {formatCurrency(indicator.calculation.floodPrevention)}</div>
+                      <div>Mitigação secas: {formatCurrency(indicator.calculation.droughtMitigation)}</div>
+                      <div>Base: Histórico INMET</div>
+                      <div>Período: 2019-2024</div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Metodologia */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Metodologia de Cálculo</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h5 className="font-medium mb-2">Fontes de Dados</h5>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• DATASUS - Custos hospitalares</li>
+                <li>• IBGE - Demografia e economia</li>
+                <li>• SANASA - Dados operacionais</li>
+                <li>• Prefeitura de Campinas - Tributação</li>
+                <li>• INMET - Dados climáticos</li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-medium mb-2">Premissas do Modelo</h5>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• Taxa de desconto: 10% a.a.</li>
+                <li>• Horizonte temporal: 10 anos</li>
+                <li>• Inflação: 4% a.a.</li>
+                <li>• Crescimento populacional: 1.8% a.a.</li>
+                <li>• Cenário climático: RCP 4.5</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
