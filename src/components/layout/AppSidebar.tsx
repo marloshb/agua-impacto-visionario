@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
@@ -36,7 +37,6 @@ interface NavigationItem {
   title: string;
   url: string;
   icon: any;
-  description?: string;
   badge?: string;
   status?: 'pending' | 'in-progress' | 'completed';
   isNew?: boolean;
@@ -47,21 +47,18 @@ const workflowItems: NavigationItem[] = [
     title: "Visão Geral", 
     url: "/", 
     icon: Home, 
-    description: "Dashboard principal",
     status: 'completed'
   },
   { 
     title: "Catálogo de Projetos", 
     url: "/?tab=catalog", 
     icon: Folder, 
-    description: "Projetos de referência",
     status: 'completed'
   },
   { 
     title: "Entrada GIS", 
     url: "/?tab=gis", 
     icon: Map, 
-    description: "Definir área e dados geográficos",
     badge: "Passo 1",
     status: 'in-progress'
   },
@@ -69,7 +66,6 @@ const workflowItems: NavigationItem[] = [
     title: "Integração de Dados", 
     url: "/?tab=integration", 
     icon: Database, 
-    description: "Conectar fontes externas",
     badge: "Passo 2",
     status: 'pending'
   },
@@ -77,7 +73,6 @@ const workflowItems: NavigationItem[] = [
     title: "Análise Espacial", 
     url: "/?tab=analysis", 
     icon: BarChart3, 
-    description: "Processamento geográfico",
     badge: "Passo 3",
     status: 'pending'
   },
@@ -85,7 +80,6 @@ const workflowItems: NavigationItem[] = [
     title: "Valoração Monetária", 
     url: "/?tab=valuation", 
     icon: DollarSign, 
-    description: "Indicadores financeiros",
     badge: "Passo 4",
     status: 'pending',
     isNew: true
@@ -94,7 +88,6 @@ const workflowItems: NavigationItem[] = [
     title: "Motor de Cálculo", 
     url: "/?tab=calculator", 
     icon: Calculator, 
-    description: "Executar simulações",
     badge: "Passo 5",
     status: 'pending'
   },
@@ -102,7 +95,6 @@ const workflowItems: NavigationItem[] = [
     title: "Relatório Final", 
     url: "/?tab=report", 
     icon: FileText, 
-    description: "Resultados e insights",
     badge: "Resultado",
     status: 'pending'
   },
@@ -227,11 +219,6 @@ export function AppSidebar() {
                                 </Badge>
                               )}
                             </div>
-                            {item.description && (
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                {item.description}
-                              </p>
-                            )}
                           </div>
                         )}
                         
