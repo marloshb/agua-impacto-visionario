@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,7 +75,6 @@ const ProjectAnalysis = ({ project, onBack }: ProjectAnalysisProps) => {
     }).format(value);
   };
 
-  // Dados para análise temporal
   const temporalAnalysis = [
     { ano: 'Ano 1', social: 1.2, economico: 0.8, ambiental: 0.5, custos: 12800000, beneficios: 8500000 },
     { ano: 'Ano 2', social: 2.1, economico: 1.6, ambiental: 1.2, custos: 2100000, beneficios: 12400000 },
@@ -87,14 +85,12 @@ const ProjectAnalysis = ({ project, onBack }: ProjectAnalysisProps) => {
     { ano: 'Ano 10', social: 6.8, economico: 5.9, ambiental: 4.7, custos: 1200000, beneficios: 32000000 }
   ];
 
-  // Análise de cenários
   const scenarioAnalysis = {
     conservative: { roi: 4.2, npv: 5200000, irr: 14.2, payback: 8.5 },
     realistic: { roi: 5.2, npv: 8500000, irr: 18.5, payback: 6.2 },
     optimistic: { roi: 6.8, npv: 12800000, irr: 24.1, payback: 4.8 }
   };
 
-  // Comparação com benchmarks
   const benchmarkData = [
     { categoria: 'ROI Social', projeto: project.roi.social, benchmark: 4.1, setor: 5.5 },
     { categoria: 'ROI Econômico', projeto: project.roi.economic, benchmark: 3.2, setor: 4.8 },
@@ -102,16 +98,14 @@ const ProjectAnalysis = ({ project, onBack }: ProjectAnalysisProps) => {
     { categoria: 'Payback (anos)', projeto: project.paybackPeriod, benchmark: 7.2, setor: 5.8 }
   ];
 
-  // Análise de sensibilidade
   const sensitivityData = [
-    { variavel: 'Taxa Desconto', impacto: -15, probabilidade: 25 },
-    { variavel: 'Crescimento Pop.', impacto: 12, probabilidade: 60 },
-    { variavel: 'Tarifa Água', impacto: 8, probabilidade: 40 },
-    { variavel: 'Custo Construção', impacto: -22, probabilidade: 35 },
-    { variavel: 'Eficiência Op.', impacto: 18, probabilidade: 70 }
+    { variavel: 'Taxa Desconto', impacto: -15, probabilidade: 25, cor: '#ef4444' },
+    { variavel: 'Crescimento Pop.', impacto: 12, probabilidade: 60, cor: '#22c55e' },
+    { variavel: 'Tarifa Água', impacto: 8, probabilidade: 40, cor: '#22c55e' },
+    { variavel: 'Custo Construção', impacto: -22, probabilidade: 35, cor: '#ef4444' },
+    { variavel: 'Eficiência Op.', impacto: 18, probabilidade: 70, cor: '#22c55e' }
   ];
 
-  // Distribuição de impactos
   const impactDistribution = [
     { name: 'Saúde', value: 35, color: '#ef4444' },
     { name: 'Econômico', value: 30, color: '#3b82f6' },
@@ -341,7 +335,7 @@ const ProjectAnalysis = ({ project, onBack }: ProjectAnalysisProps) => {
                   <XAxis dataKey="variavel" />
                   <YAxis />
                   <Tooltip formatter={(value: any) => [`${value}%`, 'Impacto no ROI']} />
-                  <Bar dataKey="impacto" fill={(entry: any) => entry.impacto > 0 ? '#22c55e' : '#ef4444'} />
+                  <Bar dataKey="impacto" fill="#3b82f6" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
