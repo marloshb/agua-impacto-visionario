@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import CalculatorEngine from "@/components/social-calculator/CalculatorEngine";
 import DataIntegration from "@/components/social-calculator/DataIntegration";
 import SpatialAnalysis from "@/components/social-calculator/SpatialAnalysis";
@@ -7,10 +8,13 @@ import MonetaryValuation from "@/components/social-calculator/MonetaryValuation"
 import ProjectCatalog from "@/components/social-calculator/ProjectCatalog";
 import OutputReport from "@/components/social-calculator/OutputReport";
 import GISInput from "@/components/social-calculator/GISInput";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProjectOverview } from "@/components/dashboard/ProjectOverview";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProjectData, CalculationResults, AIInsight, GISProjectInput, GISValidationResult } from "@/types/calculator";
 
 const Index = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [projectData, setProjectData] = useState<ProjectData>({
     area: {
       id: "main",
@@ -67,6 +71,19 @@ const Index = () => {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [gisProject, setGisProject] = useState<GISProjectInput | null>(null);
 
+  // Get current tab from URL
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get("tab") || "overview";
+
+  // Update URL when tab changes
+  const setCurrentTab = (tab: string) => {
+    if (tab === "overview") {
+      navigate("/", { replace: true });
+    } else {
+      navigate(`/?tab=${tab}`, { replace: true });
+    }
+  };
+
   const handleResults = (newResults: CalculationResults) => {
     setResults(newResults);
   };
@@ -117,66 +134,49 @@ const Index = () => {
     console.log('Validation result:', result);
   };
 
+  const renderContent = () => {
+    switch (currentTab) {
+      case "overview":
+        return <ProjectOverview />;
+      case "catalog":
+        return <ProjectCatalog />;
+      case "gis":
+        return (
+          <GISInput 
+            onProjectSubmit={handleGISProject}
+            onValidationComplete={handleValidation}
+          />
+        );
+      case "integration":
+        return <DataIntegration />;
+      case "analysis":
+        return <SpatialAnalysis />;
+      case "valuation":
+        return <MonetaryValuation projectData={projectData} />;
+      case "calculator":
+        return (
+          <CalculatorEngine 
+            projectData={projectData}
+            onResults={handleResults}
+            onInsights={handleInsights}
+          />
+        );
+      case "report":
+        return (
+          <OutputReport 
+            projectName={gisProject?.projectData.name || "Projeto de Saneamento - Jardim Campos Elíseos"}
+            results={results}
+          />
+        );
+      default:
+        return <ProjectOverview />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-primary">Calculadora de Impactos Sociais</h1>
-          <p className="text-xl text-muted-foreground">
-            Análise completa de impactos em projetos de água e saneamento com integração GIS
-          </p>
-        </div>
-        <Tabs defaultValue="catalog" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="catalog">Catálogo</TabsTrigger>
-            <TabsTrigger value="gis">Entrada GIS</TabsTrigger>
-            <TabsTrigger value="integration">Integração</TabsTrigger>
-            <TabsTrigger value="analysis">Análises</TabsTrigger>
-            <TabsTrigger value="valuation">Valoração</TabsTrigger>
-            <TabsTrigger value="calculator">Cálculo</TabsTrigger>
-            <TabsTrigger value="report">Relatório</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="catalog" className="mt-6">
-            <ProjectCatalog />
-          </TabsContent>
-          
-          <TabsContent value="gis" className="mt-6">
-            <GISInput 
-              onProjectSubmit={handleGISProject}
-              onValidationComplete={handleValidation}
-            />
-          </TabsContent>
-          
-          <TabsContent value="integration" className="mt-6">
-            <DataIntegration />
-          </TabsContent>
-          
-          <TabsContent value="analysis" className="mt-6">
-            <SpatialAnalysis />
-          </TabsContent>
-          
-          <TabsContent value="valuation" className="mt-6">
-            <MonetaryValuation />
-          </TabsContent>
-          
-          <TabsContent value="calculator" className="mt-6">
-            <CalculatorEngine 
-              projectData={projectData}
-              onResults={handleResults}
-              onInsights={handleInsights}
-            />
-          </TabsContent>
-          
-          <TabsContent value="report" className="mt-6">
-            <OutputReport 
-              projectName={gisProject?.projectData.name || "Projeto de Saneamento - Ceilândia"}
-              results={results}
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+    <AppLayout>
+      {renderContent()}
+    </AppLayout>
   );
 };
 
