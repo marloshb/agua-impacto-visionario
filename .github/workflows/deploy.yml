@@ -32,7 +32,8 @@ jobs:
       - name: Install dependencies (npm install, NOT npm ci)
         # npm install tolera package-lock defasado e adiciona pacotes novos
         # (jspdf, html2canvas, @types/leaflet, etc) que o Bun instalou localmente.
-        run: npm install --no-audit --no-fund
+        # --legacy-peer-deps: react-leaflet@5 pede React 19, mas usamos React 18.
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
       - name: Build
         run: npm run build
