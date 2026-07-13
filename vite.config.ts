@@ -5,6 +5,9 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // Base path para GitHub Pages (repo: agua-impacto-visionario).
+  // Em dev/preview do Lovable, mantém "/".
+  base: mode === "production" ? "/agua-impacto-visionario/" : "/",
   server: {
     host: "::",
     port: 8080,
